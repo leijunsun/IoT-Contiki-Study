@@ -43,53 +43,13 @@
 /*---------------------------------------------------------------------------*/
 PROCESS(hello_world_process, "Hello world process");
 AUTOSTART_PROCESSES(&hello_world_process);
-static int count = 0;
-char string_out[20];
-
-static struct ctimer test_ctimer;
-
-#ifdef ETIMER_TEST_ENABLE
-static struct etimer test_etimer;
-#endif
-
-#ifdef CTIMER_TEST_ENABLE
-static void periodic_ctimer_test(void *ptr)
-{
-  if (ptr != NULL)
-     printf("%s\n", (char *)ptr);
-
-  count++;
-  sprintf(string_out, "%d ctimer callback", count);
-  ctimer_set(&test_ctimer, CLOCK_SECOND, periodic_ctimer_test, string_out);
-
-#ifdef ETIMER_TEST_ENABLE
-  etimer_set(&test_etimer, CLOCK_SECOND / 2);
-#endif
-}
-#endif
 /*---------------------------------------------------------------------------*/
 PROCESS_THREAD(hello_world_process, ev, data)
 {
   PROCESS_BEGIN();
 
   printf("Hello, world\n");
-#ifdef CTIMER_TEST_ENABLE
-  count++;
-  sprintf(string_out, "%d ctimer callback", count);
-  ctimer_set(&test_ctimer, CLOCK_SECOND, periodic_ctimer_test, string_out);
-  printf("ctimer is not block function\n");
-#endif
   
-#ifdef ETIMER_TEST_ENABLE
-  etimer_set(&test_etimer, CLOCK_SECOND / 2);
-  while(1) {
-      PROCESS_WAIT_EVENT();
-      if(ev == PROCESS_EVENT_TIMER) {
-          printf("etimer get event: PROCESS_EVENT_TIMER \n");
-      }
-  }
-#endif
-
   PROCESS_END();
 }
 /*---------------------------------------------------------------------------*/
