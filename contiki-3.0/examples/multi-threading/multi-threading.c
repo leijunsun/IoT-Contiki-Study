@@ -82,31 +82,45 @@ PROCESS_THREAD(multi_threading_process, ev, data)
 {
   static struct mt_thread alpha_thread;
   static struct mt_thread count_thread;
+  static struct mt_thread student_thread;
 
   static struct etimer timer;
-  static int toggle;
+  static int toggle = 0;
+  int run_t;
 
   PROCESS_BEGIN();
 
   mt_init();
   mt_start(&alpha_thread, thread_main, "JIHGFEDCBA");
   mt_start(&count_thread, thread_main, "9876543210");
+  mt_start(&student_thread, thread_main, "ABCDEFGHIJ");
 
   etimer_set(&timer, CLOCK_SECOND / 2);
 
   while(1) {
     PROCESS_WAIT_EVENT();
     if(ev == PROCESS_EVENT_TIMER) {
-      if(toggle) {
-	mt_exec(&alpha_thread);
-	toggle--;
-      } else {
-	mt_exec(&count_thread);
-	toggle++;
-      }
-      puts(ptr);
+        run_t = toggle % 3;
+        switch (run_t)
+        {
+            case 0:
+	            mt_exec(&alpha_thread);
+                break;
+            case 1:
+	            mt_exec(&count_thread);
+                break;
+            case 2:
+	            mt_exec(&student_thread);
+                break;
+            default:
+                break;
+        }
+	    toggle++;
+        if (toggle == 3)
+            toggle = 0;
 
-      etimer_set(&timer, CLOCK_SECOND / 2);
+        puts(ptr);
+        etimer_set(&timer, CLOCK_SECOND / 2);
     }
   }
   
